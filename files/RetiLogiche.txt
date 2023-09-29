@@ -1,0 +1,1224 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Reti Logiche}
+\author{Leonardo Fontana}
+\date{September 2023}
+
+\begin{document}
+
+\maketitle
+
+\section{Lezione I}
+
+Docente: Ing. Giovanni Stea
+giovanni.stea@unipi.it
+Ricevimento martedì 13:30-15:30
+prenotazione via Mail
+
+sito: www.let.unipi.it/g.stea/
+
+Esercitazioni: Dr. Raffaele Zippo
+
+
+Programma del corso:
+Linguaggio Assembler (Assembly)
+quanto serve per poter scrivere programmi semplici e per poter capire in esami successivi come programmi scritti in Linguaggi
+ad alto livello vengano tradotti in linguaggio Macchina
+
+Reti logiche
+reti combinatorie, reti combinatorie per l'aritmetica, reti sequenziali asincrone e sincronizzate
+
+Microprogrammazione (DESCRIZIONE HARDWARE, non software su piccoli hardware)
+delle reti sequenziali sinctronizzate: come realizzare una rete logica a partire da specifiche date
+
+Calcolatore come esempio di rete sequenziale sinctronizzata
+Processore, interfacce di uso comunie, convertitori
+
+Reti Combinatorie >> Reti Sequenziali>> Microprogrammazione >> Calcolatore
+
+Reti LOGICHE:
+Osservazione dell'hardware dal punto di vista funzionale (non la sua costruzione fisica, ma solo il suo funzionamento logico)
+
+
+TESTI:
+Il calcolatore Didattico C86.32 !! importante (manuale Assembler)
+Dalle porte AND, OR, NOT al Sistema calcolatore
+Circuiti logici per le operazioni sui numeri naturali e sui numeri interi
+
+Dispense:
+"reti logiche unipi" 
+Contengono esami, lezioni, info ecc..
+FAQ
+
+Prova scritta:
+10 domande a crocette, 20 minuti, max 3 errori (prima parte - pretest)
+Esercizi al calcolatore (Assembler, descrizione e sisntesi di reti complesse)
+Contentite al massimo 4 consegne in un anno, contate su prima parte
+
+Prova orale:
+Risposta a domande aperte, Esercizi
+due ore di tempo
+Svolta con carta e penna
+
+L'esame viene svolto nello stesso appello
+
+Sono presenti su Teams le registrazioni dell'anno passate che sono identiche alle lezioni di quest'anno.
+All'esame scritto è possibile avere la dispensa di Assembly e al secondo esercizio i libri di testo
+
+
+Programmazione Assembler ----------------------------------------------------------------------
+Linguaggio Assembly
+è il linguaggio con cui si scrivono le istruzioni eseguite dal Processore
+il processore ciclicamente preleva un'istruzione macchina dalla memoria e la esegue
+
+
+Linguaggio e istruzione macchina
+Memoria -> zeri e unipi
+
+il linguaggio macchina è una sequenza di zeri e uni incomprensibili da un utente umano
+
+Assembler ha una sisntassi simbolica (human-friendly) per il linguaggio macchina
+MOV \%AX, \%BX -> conversione in binario
+
+Il passaggio dal linguaggio Assembler al LM si chiama assemblaggio != compilatore (traduzione 1:1)
+
+ASSEMBLER --------------------------
+non ci sono costrutti di controllo di flusso strutturato
+niente for, while, do..while, if, then, else, case
+solo costrutti primitivi (salti, GOTO)
+c'è un maggior sforzo del programmatore per programmare a BASSO LIVELLO (piccoli vicino al linguaggio macchina)
+
+mancano tipi di variabile
+gli operandi sono stringhe di bit
+l'interpretazione delle stringhe di bit è nella testa dle programmatore, non nei costrutti del linguaggio
+
+
+Il c++ è un linguaggio portatile, perchè il compilatore traduce il programma nelle istruzioni del processore
+l'assembler è SPECIFICO per il processore, perchè ogni processore ha un set di istruzioni specifiche (processor-specific)
+
+NOSTRO CASO -> Assembler per Intel x86
+
+perchè?
+I principi generali sono validi, basta cambiare manuale
+Viene utilizzato per i sistemi embedded, ovvero i sistemi dedicati
+Importanza culturale molto forte, è necessario sapere COME funziona un processore, capirlo consente di capire il comportamento del processore stesso
+c'è una RELAZIONE STRETTA con l'hardware
+
+Assembler Inte x86
+- Non tutto
+- Istruzioni necessari per programmi sensati
+
+I processori ad oggi funzionano a 64 bit, precedentemente a 32, ancora prima 16 e 8
+Noi studiamo la versione a 32 bit, perchè la continua evoluzione dei processori ha creato necessità di retrocompatibilità
+il salto da 32 a 64 NON E' pensato in modo retrocompatibile, e molti concetti sarebbero complessi da capire partendo dal sistema a 64 bit
+
+SCHEMA A BLOCCHI DEL CALCOLATORE
+modello FUNZIONALE (immagine slide 7)
+
+sottosistema di ingresso e uscita.
+Necessario per l'interazione con il calcolatore, questo viene fatto tramite dispositivi di ingresso che permettono input generici
+(suoni, tasti, ecc..) che traducono le interazioni in cifre binarie (bit)
+i dispositivi sono attacci a delle interfacce che hanno lo scopo di rendere visibili al processore i dispositivi in maniera uniforme
+in modo da utilizzarli senza conoscerne il funzionamento interno
+
+Allo stesso modo l'uscita permette, tramite i dispositivi di uscita, di convertire i bit di uscita in informazioni comprensibili
+(immagini, suoni ecc..)
+
+blocco centrale
+La memoria principale del compilatore contiene dati e programmi (una parte di dati è contenuta anche nelle interfacce dei dispositivi I/O)
+
+Blocco dx;
+Il processore contiene due parti
+ALU - Aritmetic and Logic Unit
+FPU - Floating Point Unit
+
+ALU e FPU compongono il processore
+
+l'ALU permette di eseguire operazioni logiche e aritmetiche, mentre la FPU permette di fare operazioni in virgola mobile
+Quando vengono registrate istruzioni queste vengono tradotte in una delle due tipologie di istruzioni, ALU o FPU, e vengono reindirizzate al
+relativo blocco.
+
+Corso -> Processore alias per ALU
+
+ALU --------------------------
+Esegue operazioni logiche su stringhe di bit (and, not, or)
+Esegue operazioni aritmetiche su stringhe di bit (naturali in base 2 e interi in complemento a 2)
+
+RECAP RAPPRESENTAZIONE ------------------------------------------
+Su n bit rappresento 2^n numeri naturali [0; 2^N -1]
+la legge della notazione tradizionale (base due) è:
+x = sommatoria da i = 0 a N-1 di bi * 2^i
+bit più sx è il Most Significant Bit MSB e il più dx è il Least Significan Bit LSB
+
+Numeri interi sono rappresentanti in complemento a 2
+Su N bit si rappresentano 2^N numeri interi [-2^(n-1); 2^(N-1)-1] 
+Su 8 e 16 biy l'intervallo è [-128, 127] e [-32768, 32767]
+Il numero intero X viene rappresentato con la stiringa di bit X che corrisponde al naturale
+
+X = {x se x>= 0
+    {2^N + x se x < 0
+
+Purchè sia rappresentabile nell'intervallo di RAPPRESENTAZIONE
+versione equivalente
+X = |X|(ped)2 N
+
+Legge inversa
+
+x = {X se Xn-1 (MSB) = 0
+    {-(X(comp) + 1) se Xn-1(MSB) = 1
+
+    X(comp) cambia gli 0 in 1
+
+NOTAZIONE ESADECIMALE -----------------------------------------------------------------
+4 bit sono un numero tra 0 e 15 al quale posso assocciare un simbolo esadecimale
+0 1 2 3 4 5 6 7 8 9 A B C D E F
+0000 ->                     ->1111
+posso scrivere 0xC1 per indicare 1100 | 0001 (C e 1)
+il prefisso 0x indica l'uso di codifica esadecimale
+
+Esercizi x casa -> slide 14
+
+STRUTTURA DEL CALCOLATORE -------------------------------------------------------------
+Visto da un porgrammatore Assembler:
+
+Spazio di memoria
+Si accede tramite MOV
+Spazio lineare di 2^32 locazioni (celle) contingue, un vettore di 2^32 byte
+Ogni cella viene chiamata INDIRIZZO e viene identificata da un numero a 32 bit da 0x0000000 a 0xFFFFFFFFF
+Il processore può accedere (I/O) alla memoria come:
+- Singola locazione (byte) 8 Bit
+- Doppia locazione (word) 16 bit
+- Quadrupla locazione (double word) 32 bit
+
+
+Si usa l'indirizzo più piccolo delle 2/4 locazioni per gestire l'accesso a 16/32 bit
+la parte piccoli significativa sta nella parte "alta" della cella, e l'accesso ad un indirizzo più basso consente di aumentare 
+la dimensione della lettua/scrittura
+
+Lo spazio in memoria è implementato in tecnologia RAM(volatile) tranne una piccola parte che deve essere ROM (permanente) |
+ROM necessaria per le informazioni (istruzioni) di avvio
+
+Se nel sistema ci sono meno di 4GB(2^32) | KB 2^10 MB 2^20 GB 2^30
+Come faccio a sapere se posso accedere ad un indirizzo o se sono contenuti dati relativi al Osservazione
+
+->In assembler ci sono accessi SIMBOLICI (indirizzi SIMBOLICI non NUMERICI) gestiti nell'assemblaggio dall'assemblatore, in parte in runtime
+->Non serve che lo risolva il programmatore
+
+Spazio di I/O
+dimensioni 2^16 ovvero 64K locazioni o porte
+Ogni porta ha una capscità di un byte ed è indirizzabile con indirizzo a 16 bit (vettore di 2^16 byte)
+
+il Processore accede in lettura o scrittura tramite due istruzioni IN e OUT e spesso una porta supporta soltanto
+operazioni di lettura O operazioni di scrittura
+Le locazioni di memoria sono identiche, le porte I/O no, ai rispettivi indirizzi sono presenti le interfacce per i dispositivi associati.
+Es. indirizzo interfaccia tastiera -> interfaccia tastiera != interfaccia mouse
+E' necessario CONOSCERE gli indirizzi relativi
+
+PROCESSORE
+E' suddiviso in registri, ovvero locazioni di memoria interne di 32 bit, divisi in:
+GENERALI per le elaborazioni
+DI STATO: riservati per compiti speciali
+
+Ogni registro ha un nome che VA conosciuto e si riferisce alla sua funzione
+per retrocompatibilità i 16 bit più bassi del registro POSSONO essere riferibili autonomamente
+es EAX -> Extended AX | AX -> solo i 16 bit più bassi di EAX
+
+Per le medesime ragioni è possibile in alcuni registri riferirsi ai soli 8 bit più bassi
+es. EAX -> E - AX -> AL e AH (Low & High)
+
+
+Assembly NON ortogonale, alcuni registri sono riservati a specifiche operazioni (ragioni HARDWARE)
+
+REGISTRI GENERALI --------------------
+Per motivi Hardware, storici e costruttivi alcuni registri sono legati a specifiche funzioni
+es. 
+EAX (intero o parte) per operazioni aritmetiche e risultati di tali operazioni (accumulatore)
+ESI, EDI, EBX, EBP sono a volte utilizzati come registri puntatore, base B e inidice I | S source e D Destination
+ESP è utilizzato per indirizzare la pila o stack
+- parte di memoria con disciplina LIFO
+- serve per gestire sottoprogrammi
+
+
+
+NOMI DEI REGISTRI
+AX - Accumulator
+BX - Base
+CX - Counter
+DX - Data
+
+SI - Source Index
+DI - Destination Index
+BP - Base Pointer 
+SP - Stack Pointer
+
+E - Extended (da 16 a 32 bit)
+
+
+REGISTRI DI STATO --------------------------
+EIP Instruction Pointer (chiamato anche Program Counter)
+- Contiene l'indirizzo della locazione dalla quale sarà prelevata la PROSSIMA istruzione da eseguire
+- E' fissato al reset iniziale (punta alle istruzioni in ROM)
+
+Il Processore quindi:
+- Preleva dalla memoria, dall'inidirizzo EIP, una nuova istruzione
+- incrementa EIP del numero di byte dell'istruzione che ha prelevato
+- esegue l'istruzione e torna al prelievo della prossima istruzione
+
+Le istruzioni vengono eseguite una dopo l'altra nell'ordine in cui sono scritte in memoria, eccetto in casi di SALTI (GOTO) che modificano l'EIP
+
+
+EF Extended Flag Register ha 32 elementi detto Flag
+Alcuni dei piccola interessanti:
+OF - Overflow Flag | Viene messo a 1 se l'ultima istruzione c'è un overflow e l'operazione era su numeri interi il numero risultante NON E' rappresentabile (caso di OVERFLOW o TRABOCCAMENTO)
+SF - Sign Flag | Viene messo a 1 se l'ultima istruzione ha generato MSB a 1 (numero negativo)
+ZF - Zero Flag | Viene messo a 1 se l'ultima istruzione ha generato risultato con tutti i bit a 0 
+CF - Carry Flag | Viene messo a 1 se l'ultima istruzione ha generato un riporto o un prestito, se l'istruzione operava sui NATURALI il risultato
+dell'operazione NON E' rappresentabile
+
+
+Operazione su numeri interi ci interessano OF, SF, ZF
+Operazione su numeri naturali ci interessano CF, ZF
+
+Condizioni al reset:
+EIP vale 0xFFFF0000
+la prima istruzione è La e un po di celle da 0xFFFF0000 in poi devono essere implementate in ROM
+
+in EFI i flag che ci interessano al reset valgono 0
+\endsection
+
+
+\section{Lezione II}
+
+Codifica macchina e codifica mnemonica
+
+Cosa c'è in memoria: zeri e uni. Le istruzioni che il processore esegue sono codificati con 0 e 1
+A questo si può contrapporre una codifica mnemonica che un assemblatore tradurrà in codifica binaria
+
+L'Assembly ha una serie di sovrascritture sintattiche (poche)
+
+in formato macchina le istruzioni sono segmentate con una serie di campi (slide 26) ma a noi interessa relativamente
+perchè scriveremo le istruzioni in linguaggio mnemonico
+MOV \%EAX, 0x01F4E39A
+
+o ancora potremmo usare degli identificatori definiti precedentemente
+MOV \%EAX, qualcosa (qualcosa nome simbolico che riferisce un indirizzo di memoria)
+
+Gli unici che devono conoscere la codifica macchina sono 
+A. chi scrive assemblatori
+B. chi deve implementare elementi in codifica macchina 
+
+Dato che la codifica mnemonica è solo un modo di cambiare sintatticamente il metodo di codifica binaria
+non esiste L'ASSEMBLER ma più una serie di DIVERSI Assembler 
+
+
+ISTRUZIONI IN CODIFICA MNEMONICA -------------------------
+Come si scrive un istruzione per la macchina in codifica mnemonica?
+Consta di tre campi:
+codice operativo: stabilisce l'operazione
+Suffisso di lunghezza (opzionale): stabilisce la lunghezza del campo dell'istruzione, e spesso una stessa operazione può lavorare con campi
+di diversa lunghezza (8, 16, 32 bit)
+i suffissi di lunghezza sono 3:
+b byte 8 bit
+w word 16 bit
+l long 32 bit
+
+Quando un operazione può operare con operandi di diversa lunghezza spesso questa va esplicitata
+
+il terzo campo è l'operando dell'istruzione
+
+
+Gli operandi possono essere contenuti in registri, celle di memoria, porte I/O o essere costanti contenuti nell'operazione stessa
+
+ES.
+OPCODEsuffix, source, dest
+ADD \%BX, pluto <-- può essere NON ESPLICITATO il suffisso perchè il registro è di 16 bit (non c'è ambiguita)
+ADDw \%BX, pluto
+
+
+Le istrizioni ammettono zero, uno o due operandi
+2 operandi:
+sorgente, destinatario
+il sorgente NON viene modificato e il destinatario VIENE SOSTITUITO
+
+1 operando:
+può essere sorgente o destinatario a seconda dell'istruzione, viene definito dal contesto (comportamento medesimo a sopra per i due casi)
+
+SE CI SONO DUE OPERANDI SONO DELLA STESSA LUNGHEZZA (eccetto SPECIFICI casi)
+es. somme 8+8, 16+16 ma non 8+32 o 8+16 (bit)
+idem per la MOV, non posso spostare da registri a 8 in registri a 32 e viceversa (ovviamente)
+
+
+PRIMO ESEMPIO DI PROGRAMMA (slide 29) ----------------------------------------------
+
+Preleva dalla memoria un operando in 32 bit dall'indirizzo 0x00000100
+l'operando in memoria è una stringa con un certo numero di 0 e 1, voglio CONTARE gli 1 e scriverne il numero all'interno di una locazione
+
+alla prima istruzione sposto il Byte 0x00 (costante 0) nel registro CL (ad 8 bit)
+ELEMENTO SINTATTICO: le costanti si scrivono con il \$ davanti.
+
+-> registro CL posto a con tutti i bit a 0 (0x00)
+
+Seconda istruzione, MOV di un operando a 32 bit (sia per L sia per registro EAX).
+Sposta il CONTENUTO dell'indirizzo (0x00000100 NIENTE DOLLARO -> indirizzo )nel registro EAX
+Ovviamente il contenuto essendo a 32 bit PARTE dall'indirizzo 0x000000100 e finisce nel 0x00000300
+
+-> il contenuto è nel registro EAX
+
+Terza istruzione, CONFRONTA la costante 0 con il contenuto di EAX 
+Questa operazione di confronto inserisce le informazioni relative al confronto nel registro EF in modo che questo ci 
+dia informazioni riguardo il contenuto del registro rispetto a ciò con cui confrontiamo
+
+-> il registro EF viene valorizzato
+
+Quarta istruzione Jump Equal (o Jump If Equal) è un istruzione di salto condizionale.
+Invece di incrementare normalmente l'EIP lo incrementa di EIP+COSTANTE 7 (0x07) se il controllo è verificato
+In questo caso EIP vale 0x0000020C e viene incrementato fino a 0x000002I3 
+
+-> Jump condizionale 
+
+Quinta istruzione (SE VERO), viene copiato un byte che è il valore del registro CL nella cella di memoria 0x00000104
+-> Copia del contatore
+
+Quinta istruzione (SE FALSO), SHRL (Shift Right) che prende il singolo operando contenuto nel registro EAX e lo trasla a destra.
+Quandi si trasla a destra a sinistra ci sono due condizioni di boundaries. Il bit uscente viene inserito nel Carry Flag e il bit entrante è 0.
+-> Shift
+
+Sesta istruzione ADCB ovvero Add Carry Bit e ha come operandi la costante 0 e il registro CL destinatario.
+Vuol dire he il contenuto di CL viene incrementato dell'operando sorgente (costante 0) e dell bit di carry uscente dall'operazione di shift
+
+Settima Istruzione JUMP, viene decrementato l'EIP di 0x0C e si torna all'istruzione di CONFRONTO.
+
+N.B. per evitare il conteggio MANUALE degli indrizzi tramite operazioni aritmetiche fa comodo che l'assembly metta a disposizione
+l'assegnazione di nomi simbolici agli indirizzi in modo da riferire direttamente specifici indirizzi di memoria
+
+N.B. l'istruzione di comparazione viene effettuata tramite la sottrazione degli operandi e verificando che il risultato sia 0.
+
+In questo codice sono presenti diverse tipologie di istruzioni:
+operative - svolgono compiti
+controllo - alterano il flusso (sequenziale) del programam
+
+Assembler ha molte operazioni operative mentre le operazioni di controllo sono molto limitate
+il JUMP permette il salto, i Jump Condizionali permettono il salto sulla base di specifiche Flag.
+
+INDIRIZZAMENTO DELLE ISTRUZIONI OPERATIVE ----------------------------------
+La sintassi generale delle istruzioni operative è la seguente:
+
+OPCODEsize source, destination (oppure OPCODEsuffix)
+
+OPCODE codice operativo
+suffix/size suffisso di dimensione
+Source/Destionation costanti o riferimenti/indirizzi/registri
+
+
+PRIMO TIPO DI INDIRIZZAMENTO | DI REGISTRO
+Sono presenti :
+8 registri generali a 32 bit
+8 registri generali a 16 Bit
+8 registri generali a 8 bit
+
+si applica sia al sorgente che al destinatario:
+
+OPCODE \%DI
+OPCODE \%EAX, \%EBX
+OPCODE \%BL, \%AL
+
+SECONDO TIPO DI INDIRIZZAMENTO | IMMEDIATO
+Vale solo per l'operando sorgente
+Viene esplicitato tramite la COSTANTE.
+
+OPCODE \$0x20, \%AL
+OPCODE \$0x5683A20V, \%ECX
+
+il simbolo dollaro (\$) è fondamentale.
+
+
+TERZO TIPO DI INDIRIZZAMENTO | INDIRIZZAMENTO DI MEMORIA
+Vale O per l'operando sorgente O per l'operando destinatario (NON entrambi)
+E' necessario specificate un indirizzo di memoria a 32 bit
+Caso generale:
+indirizzo =|base + indice*scala +- displacement| modulo2^32
+
+la sintatti è:
+OPCODEsfx +-disp(base, indice, scala)
+
+la base e l'indice sono due registri generale a 32 bit
+(un tempo EBP EPI - EDI ESI ma in realtà qualsiasi registro è utilizzabile eccetto l'ESP ma NESSUNO sano di mente lo farebbe)
+la scala di default è 1 
+il displacement è una costante intera
+
+il significato del |modulo| è che se il risultato dell'operazione ESCE dall'intervallo di 2^32 verrà utilizzato il RESTO dell'operazione stessa
+
+l'istruzione può essere usata in modo completo o parziale per effettuare SOTTOINDIRIZZAMENTI
+
+SOTTOINDIRIZZAMENTI ------------------------------------------------------------
+
+SOTTOINDIRIZZAMENTI: PRIMO TIPO | DIRETTO
+utilizzato unicamente il displacement, che coindice con l'indirizzo
+OPCODEW 0x00002001 -> va alla memoria all'indirizzo 0x0000201
+
+In questo caso NON CI SONO ELEMENTI per eliminare l'ambiguità di default QUINDI è NECESSARIO il suffisso esplicito (b,w o l)
+i numero senza simbolo \$ sono interpretati come indirizzi di memoria diretti.
+
+SOTTOINDIRIZZAMEMNTO: SECONDO TIPO | INDIRETTO (o con registro puntatore)
+
+OPCODEL (\%EBX)
+
+Operando a 32 bit si trova nella quadrupla locazione il cui è indirizzo è contenuto all'interno di EBX
+Anche qui il suffisso è fondamentale perchè EBX specifica la dimensione dlel'indirizzo (che comunque sarebbe 32 bit) e NON la dimensione
+dell'oggetto che si trova all'indirizzo puntato.
+
+OPCODEL (XXX, \%ESI, 4)
+
+In questo caso faccio un indirizzamento con il registro indice, l'operando a 32 bit si trova nella quadrupla locazione il cui indirizzo
+è dato dal contenuto del resitro indice ESI moltiplicato per 4
+(attenzione alla scala, moltiplica l'indice ovvero il SECONDO registro e non la base che è il PRIMO)
+
+l'indirizzamento di memoria viene fatto in questo modo perchè in molti casi, ad esempio quando si eseguono linguaggi compilati
+da C o C++, questo tipo di indirizzamento fa molto comodo. (macchina a macchina LOL)
+
+Per i nostri programmi sarà difficile trovare casi in cui questo tipo di indirizzamento è effettivamente utilizzato.
+
+solitamente i più utilizzati saranno indirizzamenti diretti o con indice nel caso di utilizzo di vettori.
+
+INDIRIZZAMENTO CON DISPLACEMENt E REGISTRO DI MODIFICA
+
+ho un operando che si trova all'indirizzo ottenuto dalla somma dell'indirizzo di partenza con un indice
+OPCODEW 0x002A3A2B (\%EDI) <-- displacement + indice 
+
+OPCODEW 0x002A3A2B (\%EBX, \%EDI) -> indirizzo di displacement + base * indice
+^^^ più usato
+
+
+INDIRIZZAMENTO DELLE PORTE I/O
+Può esserci uno dei due operandi (non è possibile trasferire memoria - memoria figuriamoci i/o - i/o)
+
+Le operazioni di indrizzamento con le porte sono due
+IN - lettura
+OUT - scrittura
+
+Lo spazio di indrizzamento nelle porte I/O è a 16 bit
+IN indirizzo16bit, registro
+OUT registro, indirizzo16bit
+
+es IN 0x002C, \%AX
+
+
+E' possibile fare indirizzamento diretto o indiretto con registri puntatori.
+Nel caso di indirizzamento diretto è possibile effettuare l'pèerazione solo per indirizzi <256 ovvero che utilizzano 8 bit.
+Questo perchè nel formato macchina di sono 8 bit. (max 0x00FF)
+
+in caso di indirizzi superiori devo usare il registro puntatore DX (NON qualsiasi, ma SOLO DX)
+es. MOV cost, \%DX
+    IN (\%DX), \%AX  |<-- operando 16 bit
+    MOV const, \%DX
+    OUT \%AL, (\%DX) |<-- operando 8 bit
+le ragioni del limite sono legate alla costruzione del processore e a fattori che non ci riguardano
+
+
+Note di sintassi -----------------------------------------
+\$qualcosa -> costante
+qualcosa -> indirizzo (indirizzamento diretto)
+
+MOV \$0x000001CA, \%EAX <-- assegnamento costante
+MOV 0x000001CA, \%EAX <-- Indirizzamento diretto
+
+
+La lunghezza dell'operando (suffisso) può essere omesso se uno degli operandi E' un registro (non indirizzamento con puntatore di registro)
+MOV \$0x2000, (\%EDI) |<-- ambigua
+MOV \$0x10, 0x2000 |<-- ambigua
+
+PRINCIPALI ISTRUZIONI -----------------------------------------------
+(carrellata, sono sulla dispensa)
+(le istruzioni mancanti dalla dispensa sono nell'appendice portabile all'esame)
+
+ISTRUZIONI DI TRASFERIMENTO --------------------
+Memoria <-> registro
+Resitro <-> registro
+I/O <-> registro
+
+Non ci sono altre possibilità
+Come linea generale queste istruzioni NON modificano i flag
+
+MOVE ---------
+
+FORMATO: MOV source, dest
+
+AZIONE: Sostituisce l'operando destinatario con una copia di quello sorgente
+
+FLAG: nessuna
+
+LOAD EFFECTIVE ADDRESS ---------
+
+FORMATO: LEA source, dest (sempre registri generali a 32 bit)
+
+AZIONE: Sostituisce l'operando destinatario con l'espressione indirizzo contenuta nell'operando sorgente (calcola un INDIRIZZO e lo salva in un registro)
+
+FLAG: nessuna
+
+EXCHANGE ---------
+
+FORMATO: XCHG source, destination (due registri di stessa dimensione o registro e memoria)
+
+AZIONE: Scambia l'operando destinatario con una copia dell'operando sorgente e viceversa (l'unica che modifica il sorgente)
+
+FLAG: nessuna
+
+
+INPUT ---------
+
+FORMATO: IN indirizzo diretto / indirizzo tramite registro puntatore, registro (registro sempre AL o AX)
+
+AZIONE: Sostituisce il contenuto del registro destinatario (AL, AX) con il contenuto di un adeguato numero di porte consecutive.
+l'indirizzo della prima (ed eventualmente unica) porta può essere indicata direttaente o tramite registro puntatore
+
+FLAG: nessuna
+
+OUTPUT ---------
+
+FORMATO: OUT registro (registro sempre AL o AX), indirizzo diretto / indirizzo tramite registro puntatore
+
+AZIONE: Sostituisce il contenuto delle porte destinatario con il contenuto del registro sorgente (AL o AX).
+l'indirizzo della prima (ed eventualmente unica) porta può essere indicata direttaente o tramite registro puntatore
+
+FLAG: nessuna
+
+STACK ---------
+
+Zona di memoria gestita tramite politica LIFO.
+Essenziale per il funzionamento di sottoprogrammi, permette di gestire il loro ordine e terminare correttamente tutti i sottoprogrammi.
+Quando viene chiamato un sottoprogramma viene salvato in pila l'indirizzo di istruzione di ritorno (successivo alla chiamata di sottoprogramma).
+
+In questo modo al termine di ogni sottopogramma è possibilie risalire al programma sorgente o al sottoporogramma precedente e "risalire" per
+l'esecuzione del programma sorgente.
+
+La pila è fondamentale per l'annidazione dei sottoprogrammi.
+
+le istruzioni sulla pila sono due, la push e la pop.
+E' presente il registro generale di ESP (Extended Stack Pointer) che è il supporto hardware per la pila (non va usato per NIENT'ALTRO)
+
+durante l'istruzione di push l'ESP viene decrementato e al nuovo indirizzo decrementato viene scritto il valore in (\%ESP) <-- valore specificato durante la push
+durante l'istruzione di pop viene copiato il contenuto della memoria (\%ESP) nel destinatario e incrementa ESP in modo da aggiornare il TOP della pila.
+
+N.B. ESP punta SEMPRE al top della pila.
+
+
+PUSH -------------------------
+
+FORMATO: PUSH source (destinatario implicito TOP pila) (push di Registro, operando in memoria con suffx, push di  con suffx)
+
+AZIONE: Salva nella pila una copia dell'operando sorgente (a 16 o 32 bit). il funzionamento nello specifico è spiegato prima.
+
+FLAG: nessuna
+
+POP -------------------------------
+
+FORMATO POP destination (source implicito TOP pila) (dest registo o memoria con suffx)
+
+AZIONE: Pop di operandi a 16 o 32 bit, nel qual caso ESP viene incrementato di 2 o 4, e mette l'operando nella destination
+
+FLAG: nessuna
+
+
+La pila serve anche come memoria temporanea perchè i registri generali sono pochi.
+Alcuni di questi devono essere usati in modo obbligatorio per istruzioni specifiche
+
+ES. utilizzo di EAX durante un input.
+PUSH \%EAX
+IN ..... operazioni varie ....
+POP \%EAX |<-- riprendo il valore
+
+\endsection
+
+\section{Lezione III}
+
+Alcune operazioni aritmetiche considerano gli operandi indifferentemente che siano naturali o interi, questo perchè
+la rappresentazione della somma in Complemento a 2 è uguale alla somma delle rappresentazioni, questo permette di 
+avere risultati esatti e già rappresentati con operazioni di somma bit a bit delle rappresentazioni degli operandi.
+
+Le istruzioni aritmetiche modificano i flag in due modi diversi.
+Un algoritmi di aggiornamento dei flag che opera sui naturali e un'altro sugli interi, ma è il programmatore a saperlo
+il calcolatore opera indifferentemente nei due casi aggiornando tutti i flag relativi all'operazione.
+
+ADD ----------------------------
+
+FORMATO: ADD source, destination
+
+AZIONE: Modifica l'operando destinatario sommando l'operando sorgente. mette ad 1 il CF se interpretando gli operandi come naturali
+        si è verificato un riporto, mette ad 1 l'OF se si è verificato traboccamento (overflow)
+
+FLAG: TUTTI (vacca boia)
+
+
+
+La somma viene calcolata come una qualsiasi somma in notazione posizionale, quindi l'operazione è la stessa indipendentemente dalla base
+purchè si utilizzi la notazione posizionale. l'ADD equivale all'operazione dest += source in C++. (slide 59)
+il riporto della somma viene conservato nel carry flag CF, tuttavia il suo utilizzo è significativo solo in caso di numeri naturali.
+
+Nel caso di operazioni tra interi il flag da controllare è l'overflow flag OF, che indica quando la somma dei numeri interi esce dall'intervallo
+di rappresentabilità. l'operazione ADD imposta l'OF quando la somma di due operandi concordi restituisce un risultato discorde con gli operandi.
+es. due negativi che restituiscono un positivo o viceversa.
+
+Altri flag modificati sono lo Zero Flag, ad 1 se tutti i bit del risultato valgono 0, e Sign Flag SF messo a 0 o 1 in base al MSB.
+
+INCREMENT --------------------------
+FORMATO: INC destination
+
+AZIONE: equivale all'istruzione ADD \$1, destination con la sola differenza che il contenuto del CF non viene modificato
+
+FLAG: OF, SF e ZF
+
+
+Storicamente la increment era più veloce dell'add (medioevo dei processori) e l'istruzione è più compatta, per questo è stata mantenuta. 
+(anche per retrocompatibilità)
+
+il non aggiornare il CF non è un limite perchè se l'operando incrementato esce dall'intervallo di rappresentabilità questo è indicato dallo ZF
+perchè il risultato dell'incremento è 0. (con 1 bit estromesso)
+
+SUBTRACT --------------------------
+FORMATO: SUB source, destination
+
+AZIONE: Modifica l'operando destinatario sottraendovi l'operando sorgente ed il conto funziona sia se la rappresentazione intesa è naturale
+        sia se è naturale. il CF viene valorizzato ad 1 se interpretando il conto come operazione tra naturali si è verificato un prestito, mentre
+        imposta ad 1 l'OF se interpretando gli operandi come interi se si è verificato traboccamento (overflow)
+
+FLAG: Tutti.
+
+Similmente alla ADD la differenza di numeri naturali è rappresentabile se non è stato valorizzato il CF, mentre per i numeri interi è necessario
+osservare l'OF.
+l'OF viene valorizzato ad 1 se, in caso di differenza di numeri discordi il risultato ha il segno del sottraendo.
+
+DECREMENT --------------------------
+FORMATO: DEC destination
+
+AZIONE: equivale alla SUB \$1, destination
+
+FLAG: tutti.
+
+ADD WITH CARRY --------------------------
+FORMATO: ADC source, destination
+
+AZIONE: Modifica l'operando destination sommandoci source contando anche il carry di eventuali operazioni precedenti.
+
+FLAG: tutti.
+
+Viene usato nei casi in cui è necessario eseguire molteplici ADD su bit meno significativi fino a quelli più signfiicativi tenendo conto di
+eventuali riporti
+
+SUBTRACT WITH BORROW --------------------------
+FORMATO: SBB source, destination
+
+AZIONE: si sottrae dal destinatario il source e l'eventuale riporto, caso parallelo della ADD with carry ma per la sottrazione.
+
+FLAG: tutti.
+
+NEGATE --------------------------
+FORMATO: NEG destination
+
+AZIONE: Interpeta l'operando come un intero e lo sostisuisce con il suo pposto. Se non è possibile eseguire l'operazione imposta l'OF ad 1.
+        Inoltre imposta il CF a 1 eccetto quando l'operando è 0, in quel caso lo mette a 0.
+
+FLAG: Tutti.
+
+COMPARE --------------------------
+FORMATO: CMP source, destination
+
+AZIONE: Verifica se l'operando destinatario è maggiore, uguale o minore dell'operando sorgente, sia come naturali che come interi, e aggiorna i flag
+        di conseguenza. gli operandi rimangono inalterati. 
+
+FLAG: Tutti.
+
+Il modo in cui la compare restituisce il risultato è legato al senso stesso del programma che dopo un istruzione di compare che imposta i flag dipendentemente
+dagli operatori esiste un istruzione di Jump Condizionale che opera a seconda di uno dei flag aggiornati dall'istruzione compare.
+
+Nello specifico la Compare esegue una sottrazione senza cambiare iil valore del destinatario e aggiorna i flag ESATTAMENTE come farebbe la sub.
+
+MOLTIPLICAZIONI E DIVISIONI---------------------------------------------------
+Sono diverse a seconda che siano operazioni tra interi o naturali.
+MUL, IMUL || Naturali
+DIV, IDIV || Interi
+
+Questo perchè gli algoritmi per le due diverse tipologie di rappresentazione sono diverse nei casi di moltipilicazioni o divisioni
+
+La somma di due numeri a N cifre sta su N (o N+1) cifre e ha senso usare un operazione in cui un operando è sia addendo sia contenitore del risultato
+
+il prodotto di due numeri a N cifre sta su 2N cifre
+Fattori e risultato hanno dimensioni non comparabili e spesso il risultato è molto più grande dei fattori
+Non avrebbe senso usare un operando come FATTORE e come CONTENITORE DEL RISULTATO.
+
+MOLTIPLICAZIONE---------------------------------------------------------------
+Ha sia un operando che il destinatario implicitio.
+ci sono 3 tipi di moltiplicazioni, a 8, 16 o 32 bit.
+
+8 bit: AX = AL * source || I registri sono specifici
+16 bit: DX_AX = AX * source || Parte alta su DX, parte bassa su AX (divide i 32 su due registri a 16)
+32 bit: EDX_EAX = EAX * source || Parte alta su EDX, parte bassa su EAX)
+
+
+la scelta del programmatore viene esplicitata specificando un operando source a 8, 16 o 32 bit.
+
+MULTIPLY -------------------------------------------
+
+FORMATO: MUL source
+
+AZIONE: Esegue l'operazione seguendo le modalità spiegate sopra.
+
+FLAG: CF,OF vengono messi a 1 se il risultato non rientra nel numero di bit del source, e a zero altrimenti. SF e ZF sono INDEFINITI.
+
+
+INTEGER MULTIPLY -----------------------------------
+
+FORMATO: IMUL source
+
+AZIONE: Esegue l'operazione seguendo le modalità spiegate sopra, ma sugli interi.
+
+FLAG: NON ATTENDIBILI (e.e)
+
+DIVISIONE --------------------------------------------------------------------
+(naturale)
+Per quest'operazione vale la maggior parte delle considerazioni fatte per la moltiplicazione, ma con alcuni problemi aggiuntivi:
+
+1. i risultati sono DUE | Quoziente e Resto
+2. la divisione può NON ESSERE fattibile | divisione per 0
+
+x div y
+0 <= R <= y-1 || Il resto sta sul numero di cifre del DIVISORE
+0 <= Q <= X   || Il quoziente IN TEORIA sta sul numero di cifre del dividendo.
+
+Ci sono tre possibili versioni, a 8, 16 o 32 bit.
+
+8 bit: AL = quoziente(AX/source)            AH = resto(AX/source)
+16 bit: AX = quoziente(DX_AX/source)        DX = resto(DX_AX/source)
+32 bit: EAX = quoziente(EDX_EAX/source)     EDX = resto(EDX_EAX/source)
+
+è importante scegliere il sorgente della DIMENSIONE OPPORTUNA!! Q = s/2 bit !!!!
+
+!!!!!Se il quoziente della divisione non sta nel numero di bit previsto il programma si INCHIODA, da lo stesso errore della divisione per 0.!!!!!
+Esempio divisione(slide 84)
+
+DIVIDE --------------------------
+FORMATO: DIV source
+
+AZIONE: Come scritto sopra. Se non è possibile genera un'interruzione interna e inchioda il programma.
+
+FLAG:   Tutti, ma in modo non attendibile
+
+INTEGER DIVIDE --------------------------
+FORMATO: IDIV source
+
+AZIONE: Come scritto sopra. Questa operazione però opera sugli operandi secondo gli algoritmi di divisione per le rappresentazioni di numeri interi.
+
+FLAG:   Tutti, ma in modo non attendibile
+
+DIVISIONE INTERA - ATTENZIONE AI SEGNI
+Nella divisione intera il resto ha SEMPRE il segno del dividendo è in modulo minore del divisore.
+il quoziente viene sempre approssimato all'intero più vicino allo zero, questo è INCONSISTENTE rispetto alle nozioni di algebra comune.
+
+QUando si programma è necessario scegliere con cura la versione dell'operazione che si usa, soprattuto per la divisione.
+E' importante ricordarsi di azzerare i registri PRIMA della divisione se questa è a più di 8 bit (DX per 16 e EDX per 32)
+
+il contenuto di DX o EDX viene MODIFICATO dalle operazioni di moltiplicazione o divisione se queste sono a più di 8 bit. (effetto collaterale)
+
+
+ESTENSIONE DI CAMPO (per gli interi)-----------------------------------------------------
+
+Operazione con cui si rappresenta un numero usando più cifre.
+Per i naturali è banale, basta aggiungere X zeri in testa
+
+1000 -> 0000 1000
+
+
+Per gli interi però la cosa non è così banale, perchè il PRIMO bit (MSB) è quello che indica il segno
+Quindi è necessario ripetere più volte il MSB
+
+0101 -> 0000 0101
+
+1001 -> 1111 1001
+
+CONVERT WORLD TO DOUBLEWORLD in EAX
+
+FORMATO: CWDE
+AZIONE: Interpreta il contenuto di AX come un numero intero a 16 bit e lo rappresenta su 32 bit in EAX
+FLAG: nessuna
+
+\endsection
+
+\section{Lezione IV}
+
+ISTRUZIONI DI TRASLAZIONE E ROTAZIONE------------------------------------------------
+P.S. controlla graficamente le traslazioni e rotazioni tramite slide (c.a. 100)
+Servono a variare l'ordine dei bit in un operando destinatario.
+Ci sono in tutto 8 operazioni di shift e rotate
+
+Ha due formatiL:
+        OPCODE src, destination
+        OPCODE destination
+src è il numero di ripeetizioni
+        immediato oppure registro CL
+        Deve valere al massimo 31
+        se omesso vale 1
+
+Le istruzioni sono:
+                  SX   |   DX
+TRASLAZIONE -  SHL SAL | SHR SAR
+               NAT INT | NAT INT
+
+ROTAZIONE -    ROL RCL | ROR RCR
+In questo caso gli operandi delle istruzioni possono non avere dimensione uguali, data la natura dell'operazione stessa
+
+Se viene inserito un numero > 31 verranno considerati solo i primi 5 bit a partire dal LSB (fino ad un massimo di 31 per l'appunto)
+
+ISTRUZIONI DI TRASLAZIONE --------------------------------------
+
+SHIFT LOGICAL LEFT ------------------------------------
+
+FORMATO: SHL source, destination | SHL destination (source implicito CL)
+
+AZIONE: Interpreta il sourgente come un numero naturale n e, per n volte,, sostituisce il bit contenuto in CF e ciascun vit dell'operando
+        destinatario con il bit che gli è immediatamente a destra. il MSB viene spostato nel CF e il LSB viene impostato a 0
+
+FLAG:   Tutti
+
+Significato logico: moltiplica il destinatario per 2^N, e la natura dell'istruzione permette operazioni molto più comode dell'uso della MUL
+
+E' importante fare attenzione alla rappresentabilità del numero su X+N bit, se non è possibile è difficile riconoscere se il numero rappresentato
+è corretto o meno (il CF viene sovrascritto con Shift che provocano troncamento, in caso di shift > 1 è difficile capire il risultato dal CF)
+
+es. 11000 -> shift 3 CF a 0 ma troncamento avvenuto
+
+Esistono due shift a DX e due shift a SX perchè il modo di eseguire lo shift cambia per i naturali e per gli interi
+
+SHIFT ARITMETICAL LEFT------------------------------
+
+FORMATO: SAL source, destination | SAL destination
+
+AZIONE: come sopra ma per i numeri interi
+
+FLAG: Tutti, ma OF non è significativo (non ci sono differenze con la SHL)
+
+SAL e SHL sono IDENTICHE nel modo in cui lo shift viene eseguito (stesso algoritmo di shifting) infatti hanno lo stesso OPCODE nel manuale INTEL
+Il motivo per cui esistono due codici diversi è perchè lo shift DESTRO invece ha algoritmo diverso nei due casi, quindi si mantengono due
+codici come reminder per il programmatore di dividere i due casi e instaurare un meccanismo logico di divisione concettuale tra logico e aritmetico
+
+SHIFT LOGICAL RIGHT------------------------------
+
+FORMATO: SHR source. destination | SHR destination
+
+AZIONE: Interpreta il valore di source come un numero n ed esegue lo shift a destra di n bit. 
+
+FLAG: Tutti
+
+Questa operazione esegue lo shifting inserendo 0 come MSB e spostando il LSB nel CF, è utilizzabile SOLO con gli operandi naturali.
+L'algoritmo modificherebbe il valore di numeri interi inserendo 0 come MSB
+
+Il significato è uguale alla divisione per 2^N (approssimazione per difetto/troncamento verso lo 0)
+
+SHIFT ARITMETICAL RIGHT------------------------------
+
+FORMATO: SAR source, destination | SAR destination
+
+AZIONE: Esegue lo shifting a destra dell'operando inserendo come MSB un bit uguale al MSB presente prima dello shifting (per evitare cambi di segno)
+        Il LSB viene spostato nel CF
+
+FLAG: Tutti
+
+Il significato è lo stesso dell'operazione precedente, ma con un algoritmo apposito per i numeri interi.
+
+
+Esistono casi in cui la SAR e il IDIV danno RISULTATI DIVERSI:
+
+Es. caso -5 / 2
+
+con la IDIV otteniamo come resto -1 (1 di resto con segno negativo) e quoziente -2 | approssimazione per troncamento verso lo zero
+con la SAR otteniamo:
+        1111 | 1011 (-5)
+        1111 | 1101 (-3)
+
+Il risultato della IDIV è -2 con resto -1 mentre il risultato della SAR è -3 . L'approssimazione della SAR NON E' per troncamento
+ma, data la natura dello shifting, è per difetto. questo porta una rappresentazione opposta nel caso di numeri negativi.
+
+Il risultato della SAR è uguale a quello della IDIV quando:
+        Il dividendo è positivo (l'approssimazione per difetto e quella per troncamento verso 0 sono la stessa)
+        Il resto è 0 (non si verifica approssimazione)
+
+Il risultato è diverso se:
+        Esiste il resto e il dividendo è negativo(l'approssimazione SAR è per difetto, quella di IDIV è troncamento prossimo a 0, vanno in sensi opposti)
+
+
+ISTRUZIONI DI ROTAZIONE-------------------------------
+Ruotano i bit includendo / non includendo CF nella rotazione.
+
+
+ROTATE LEFT------------------------------
+
+FORMATO: ROL
+
+AZIONE: Ruota i bit a sinistra (LSB - > MSB e LSB in CF)
+
+FLAG: CF
+
+ROTATE RIGHT------------------------------
+
+FORMATO: ROR
+
+AZIONE: Ruota i bit a destra (MSB -> LSB e MSB in CF)
+
+FLAG: CF
+
+ROTATE TROUGH CARRY LEFT------------------------------
+
+FORMATO: RCL
+
+AZIONE: Ruota i bit a sinistra attraverso il carry flag (MSB -> CARRY e CARRY in LSB)
+
+FLAG: CF
+
+ROTATE TROUGH CARRY RIGHT------------------------------
+
+FORMATO: RCR
+
+AZIONE: Ruota i bit a destra attraverso il carry flag (LSB -> CARRY e CARRY in MSB)
+
+FLAG: CF
+
+ISTRUZIONI LOGICHE -------------------------------------------------------------
+Applicano gli operatori dell'algebra booleana (AND, OR, NOT (XOR) e combinazioni)
+In genere modificano i flag
+
+NOT --------------------------------------------
+FORMATO: NOT destination
+
+AZIONE: Modifica l'operando destinatario complementando tutti i bit
+
+FLAG: Nessuno
+
+AND --------------------------------------------
+FORMATO: AND source, destination
+
+AZIONE: Sostituisce ciascun bit del destinatario con l'AND bit a bit del source e del destinatario. Mette a 0 CF e OF
+
+FLAG: Tutti.
+
+OR --------------------------------------------
+FORMATO: OR source, destination
+
+AZIONE: Sostituisce ciascun bit del destinatario con l'OR bit a bit del source e del destinatario. Mette a 0 CF e OF
+
+FLAG: Tutti.
+
+XOR --------------------------------------------
+FORMATO: XOR source, destination
+
+AZIONE: Sostituisce ciascun bit del destinatario con l'OR ESCLUSIVO bit a bit del source e del destinatario, Mette a 0 CF e OF
+
+FLAG: Tutti.
+
+
+OPERAZIONI LOGICHE di operandi in memoria o registri generali (ovviamente)
+
+UTILIZZO-----------------------------------
+Le istruzioni AND, OR, XOR e NOT si usano spesso per lavorare su singoli bit di operandi, usando un operando sorgente immediato detto maschera
+
+AND si usa spesso per testare i singoli bit di un operando | voglio sapere se il bit n.5 di AL vale uno o zero.
+es.
+AND \$0x20, \%AL # 0x20 = 0010|0000 (maschera)
+JZ vale_zero     # salto condizionale ad un altro codice se bit5 = 0 || GLi altri valgono già tutti 0, se il 5 è 0 il risultato è 0 e lo ZF viene valorizzato ad 1
+...
+
+Oppure posso usare una AND per resettare SINGOLI BIT di un operando:
+es.
+AND \$0xBF, \%BF        # maschera 1011|1111 -> sto resettando il bit 6
+
+OR si usa per SETTARE SINGOLI BIT 
+es.
+OR \$0x10, \%CL         # maschera 0001|0000 -> lascia inalterati tutti i bit tranno il 4 che viene messo a 1 sicuramente
+
+XOR può essere usata per invertire(complementare) singoli bit
+es.
+XOR \$0x20, \%AL        # maschera 0010|0000 -> lascia inalterati tutti i bit tranno il 5 che viene INVERTITO (0 se era 1, 1 se era 0)
+
+
+ALTRI UTILIZZI:
+
+AND estensione di un operando naturale:
+es. Voglio sommare due numeri  naturali, uno in AL (8 bit) e uno in EDX (32 bit) non posso sommarli senza estenderli.
+per estendere AL posso riempire i 24 bit rimanenti di 0 tramite la AND:
+xxxx|xxxx - maschera \$0x000000FF (0000|0000|0000|0000|0000|0000|1111|1111)
+il risultato dell'operazione è 0000|0000|0000|0000|0000|0000|xxxx|xxxx -> esteso a 32 bit
+
+altro uso interessante è XOR per resettare i registri:
+XOR \%EAX, \%EAX -> Equivale a RESETTARE i bit di EAX.
+
+la differenza è nell'uso di byte dell'operazione stessa:
+
+XOR \%EAX, \%EAX (1 byte) | MOV \$0, \%EAX (5 byte)
+
+
+ISTRUZIONI DI CONTROLLO --------------------------------------------------
+Il flusso del programma prosegue normalmente in sequenza.
+le istruzioni sono conservate in memoria consecutivamente.
+Il processore preleva un istruzione, incrementa EIP, la eseuge e così via fino al termine del programma.
+
+Le istruzioni che alterano il flusso sequenziale tramite le IStRUZIONI DI CONTROLLO che ALTERANO il valore del registro EIP
+Le istruzioni che modificano l'EIP son:
+        le istruzioni di salto (Jump o Jump Considizionale)
+        le istruzioni per la gestione di sottoprogrammi (CALL, RET (gestione della pila))
+
+In particolare le JUMP permettono di alterare il flusso e far riprende il programma in qualsiasi altro punto.
+Le istruzioni CALL e RET permettono di "fermare" il programma principale per la durata di un sottoprogramma ( o molutipli annidati)
+e poi riprendere dall'istruzione successiva
+
+
+ISTRUZIONI DI SALTO-------------------------------------------------------------
+
+JUMP --------------------------------------------
+
+FORMATO: JMP \%EIp +- displacement | JMP *extended_register | JMP *memory (noi utilizzeremo etichette)
+
+AZIONE: Calcola un indirizzo di salto e lo immette nel registro EIP
+
+FLAG: nessuna
+
+in Assembler possiamo definire etichette (nomi simbolici) per indicare l'istruzione dove si deve saltare
+es.
+
+salto:
+        ----
+        ----
+        ---
+        JMP salto
+
+
+JUMP IF CONDITION MET--------------------------------------------
+
+FORMATO: Jcon \%EIP +- displacement
+
+AZIONE: Esamina il contenuto dei flag (dipendenti dalla condizione immessa) Se da questo esame risulta che la condizione "con" è soddisfatta Il
+        salto viene eseguito e si comporta come una JUMP, altrimenti termina l'istruzione senza compiere azioni (si passa alla successiva e Il
+        flusso del programma non viene alterato)
+
+FLAG: Nessuna.
+
+Esempi di condizione:
+JZ -> Jump Zero -> Zero Flag
+JE -> Jump Equal
+
+ALCUNE CONDIZIONI SONO SULLE CONDIZIONI DEI SINGOLI FLAG:
+
+JZ      | Zero Flag
+JNZ     |
+JC      | Carry Flag
+JNC     |
+JO      | Overflow Flag
+JNO     |
+JS      | Sign Flag
+JNS     |
+
+La condizione viene verificata tramite il valore del singolo flag (0 o 1) e ogni salto si presenta in due versioni, Jump If FLAG o Jump if Not Flag (Jcond e JN cond)
+
+CONFRONTI TRA NATURALI: (i flag da controllare in casi di naturali e interi sono diversi)
+-->Da eseguire dopo la CMP (ovviamente)
+-->Sono SEMPRE riferite al destinatario
+JE      | Jump if Equal - FZ contiene 1
+JNE     | Jump if not Equal - ZF contiene 0
+JA      | Jump if Above - CF contiene 0 e ZF contiene 0
+JAE     | Jump if Above or Equal - CF contiene 0
+JB      | Jump if Below - CF contiene 1
+JBE     | Jump if Below or Equal - se CF o ZF contiene 1
+
+CONFRONTI TRA INTERI:
+JE      ! Jump if Equal - ZF contiene 1
+JNE     ! Jump if not Equal - ZF contiene 0
+JG      | Jump if Greater - ZF contiene 0 se SF è uguale a OF
+JGE     | Jump if Greater or Equal - OF = 0 e SF = 0 OR OF = 1 SF = 1 in generale OF = SF
+JL      | Jump if Less                        |---> (completa con slide 117)
+JLE     | Jump if Less or Equal               |
+
+i Jump dipendenti da FLAG possono essere scritti in qualsiasi momento (dopo istruzioni che alterano i flag logicamente) 
+i Jump dipendenti da confronti seguono sempre una CMP
+
+CMP source, destination
+Jcond-confronto ...
+
+SOTTOPROGRAMMI ------------------------------------------------
+Le istruzioni coinvolte sono due:
+CALL - Salta ad un sottoprogramma
+RER  - Ritorna al programma chiamante
+
+Entrambe fanno riferimento alla Pila
+
+CALL avrà il riferimento all'indrizzo di un istruzione del sottopogramma, la RET non avrà riferimenti.
+(disegno pila slide 121)
+
+l'istruzione CALL fa si che l'indirizzo contenuto in EIP venga salvato in ESP (pila), la pila viene incrementata (inc ESP) e l'indirizzo in EIP viene sostituito con l'indirizzo di
+riferimento dell'istruzione.
+
+l'istruzione RET fa si che l'indirizzo contenuto in EIP diventa l'istruzione al TOP della pila, esegue il pop della pila (rimozione TOP e dec ESP)
+
+CALL --------------------------------------------
+
+FORMATO: CALL formati vari. noi useremo CALL etichetta
+
+AZIONE: Effettua la chiamata di un sottopgoramma, inserendo il valore di EIP nella pila, eseguendo il push della pila e poi sostituisce il valore di EIP
+
+FLAG: Nessuna.
+
+RET --------------------------------------------
+
+FORMATO: RET formati vari. noi useremo RET etichetta
+
+AZIONE: Effettua il ritorno da un sottopogramma, inserendo il top della pila in EIP e il pop della pila
+
+FLAG: Nessuna
+
+NO OPERATION --------------------------------------------
+
+FORMATO: NOP
+ 
+AZIONE: Termina senza effettuare azioni
+
+FLAG: Nessuna.
+
+HALT --------------------------------------------
+
+FORMATO: HLT
+
+AZIONE: Inchioda il processore
+
+FLAG: Nessuna, o tutte, dipende cosa vuoi vederci
+
+PROTEZIONE, ISTRUZIONI PRIVILEGIATE -------------------------------------------------
+Il processore può funzionare in due modalità, utente e sistema.
+In modalità sistema si possono effettuare TUTTE le istruzioni.
+In modalità utente può usare solo ALCUNE istruzioni.
+i programmi Assembler che scriviamo girano in modalità utente.
+Tra le istruzioni che non si possono utilizzare in modalità utente ci sono quelle <<privilegiate>>
+   | Halt
+   | IN
+   | OUT
+Se viene scritta una di queste istruzioni viene eseguita un eccezione di protezione e il comportamento seguente dipende
+dal sistema in cui si opera.
+
+
+CONSEGUENZE
+non avere HLT non è un problema, ma come si fa per la IN e OUT ad eseguire input / output da tastiera?
+- Si passa attraverso appositi sottoprogrammi di servizio (li vedremo poi)
+
+Perchè le istruzioni di I/O sono privilegiate?
+ - Le interfacce sono sistemi complessi
+ - E' facile portarle in stato inconsistente
+ - I sottoprogrammi di servizio garantiscono un uso corretto delle interfacce (le interfacce per le interfacce LOL)
+
+
+--------------------------------------------
+
+FORMATO:
+
+AZIONE:
+
+FLAG:
+
+
+
+\endsection
+\end{document}
