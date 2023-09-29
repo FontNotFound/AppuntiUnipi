@@ -29,7 +29,7 @@
                 <div class="card w-100">
                     <div class="card-content">
                         <div class="row w-100 mt-1">
-                            <button class="alert alert-info w-100" data-bs-toggle="collapse" data-bs-target="#lezione1" aria-expanded="false" aria-controls="lezione1"> LEZIONE I </button>
+                            <p class="alert alert-info w-100" onClick="openPage(1)"> LEZIONE I </p>
                             <div class="collapse" id="lezione1">
                                 Docente: Ing. Giovanni Stea
                                 giovanni.stea@unipi.it
@@ -321,4 +321,10 @@
             </div>
         </div>
     </body>
+
+    <script type="text/Javascript">
+        openPage(num){
+            $('#lezione'+num).collapse('toggle')
+        }
+    </script>
 </html>
