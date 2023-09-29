@@ -30,281 +30,28 @@
                     <div class="card-content">
                         <div class="row w-100 mt-1">
                             <p class="alert alert-info w-100" role="button" onClick="openPage(1)"> LEZIONE I </p>
-                            <div class="collapse" id="lezione1">
-                                Docente: Ing. Giovanni Stea
-                                giovanni.stea@unipi.it
-                                Ricevimento martedì 13:30-15:30
-                                prenotazione via Mail
-
-                                sito: www.let.unipi.it/g.stea/
-
-                                Esercitazioni: Dr. Raffaele Zippo
-
-
-                                Programma del corso:
-                                Linguaggio Assembler (Assembly)
-                                quanto serve per poter scrivere programmi semplici e per poter capire in esami successivi come programmi scritti in Linguaggi
-                                ad alto livello vengano tradotti in linguaggio Macchina
-
-                                Reti logiche
-                                reti combinatorie, reti combinatorie per l'aritmetica, reti sequenziali asincrone e sincronizzate
-
-                                Microprogrammazione (DESCRIZIONE HARDWARE, non software su piccoli hardware)
-                                delle reti sequenziali sinctronizzate: come realizzare una rete logica a partire da specifiche date
-
-                                Calcolatore come esempio di rete sequenziale sinctronizzata
-                                Processore, interfacce di uso comunie, convertitori
-
-                                Reti Combinatorie >> Reti Sequenziali>> Microprogrammazione >> Calcolatore
-
-                                Reti LOGICHE:
-                                Osservazione dell'hardware dal punto di vista funzionale (non la sua costruzione fisica, ma solo il suo funzionamento logico)
-
-
-                                TESTI:
-                                Il calcolatore Didattico C86.32 !! importante (manuale Assembler)
-                                Dalle porte AND, OR, NOT al Sistema calcolatore
-                                Circuiti logici per le operazioni sui numeri naturali e sui numeri interi
-
-                                Dispense:
-                                "reti logiche unipi" 
-                                Contengono esami, lezioni, info ecc..
-                                FAQ
-
-                                Prova scritta:
-                                10 domande a crocette, 20 minuti, max 3 errori (prima parte - pretest)
-                                Esercizi al calcolatore (Assembler, descrizione e sisntesi di reti complesse)
-                                Contentite al massimo 4 consegne in un anno, contate su prima parte
-
-                                Prova orale:
-                                Risposta a domande aperte, Esercizi
-                                due ore di tempo
-                                Svolta con carta e penna
-
-                                L'esame viene svolto nello stesso appello
-
-                                Sono presenti su Teams le registrazioni dell'anno passate che sono identiche alle lezioni di quest'anno.
-                                All'esame scritto è possibile avere la dispensa di Assembly e al secondo esercizio i libri di testo
-
-
-                                Programmazione Assembler ----------------------------------------------------------------------
-                                Linguaggio Assembly
-                                è il linguaggio con cui si scrivono le istruzioni eseguite dal Processore
-                                il processore ciclicamente preleva un'istruzione macchina dalla memoria e la esegue
-
-
-                                Linguaggio e istruzione macchina
-                                Memoria -> zeri e unipi
-
-                                il linguaggio macchina è una sequenza di zeri e uni incomprensibili da un utente umano
-
-                                Assembler ha una sisntassi simbolica (human-friendly) per il linguaggio macchina
-                                MOV \%AX, \%BX -> conversione in binario
-
-                                Il passaggio dal linguaggio Assembler al LM si chiama assemblaggio != compilatore (traduzione 1:1)
-
-                                ASSEMBLER --------------------------
-                                non ci sono costrutti di controllo di flusso strutturato
-                                niente for, while, do..while, if, then, else, case
-                                solo costrutti primitivi (salti, GOTO)
-                                c'è un maggior sforzo del programmatore per programmare a BASSO LIVELLO (piccoli vicino al linguaggio macchina)
-
-                                mancano tipi di variabile
-                                gli operandi sono stringhe di bit
-                                l'interpretazione delle stringhe di bit è nella testa dle programmatore, non nei costrutti del linguaggio
-
-
-                                Il c++ è un linguaggio portatile, perchè il compilatore traduce il programma nelle istruzioni del processore
-                                l'assembler è SPECIFICO per il processore, perchè ogni processore ha un set di istruzioni specifiche (processor-specific)
-
-                                NOSTRO CASO -> Assembler per Intel x86
-
-                                perchè?
-                                I principi generali sono validi, basta cambiare manuale
-                                Viene utilizzato per i sistemi embedded, ovvero i sistemi dedicati
-                                Importanza culturale molto forte, è necessario sapere COME funziona un processore, capirlo consente di capire il comportamento del processore stesso
-                                c'è una RELAZIONE STRETTA con l'hardware
-
-                                Assembler Inte x86
-                                - Non tutto
-                                - Istruzioni necessari per programmi sensati
-
-                                I processori ad oggi funzionano a 64 bit, precedentemente a 32, ancora prima 16 e 8
-                                Noi studiamo la versione a 32 bit, perchè la continua evoluzione dei processori ha creato necessità di retrocompatibilità
-                                il salto da 32 a 64 NON E' pensato in modo retrocompatibile, e molti concetti sarebbero complessi da capire partendo dal sistema a 64 bit
-
-                                SCHEMA A BLOCCHI DEL CALCOLATORE
-                                modello FUNZIONALE (immagine slide 7)
-
-                                sottosistema di ingresso e uscita.
-                                Necessario per l'interazione con il calcolatore, questo viene fatto tramite dispositivi di ingresso che permettono input generici
-                                (suoni, tasti, ecc..) che traducono le interazioni in cifre binarie (bit)
-                                i dispositivi sono attacci a delle interfacce che hanno lo scopo di rendere visibili al processore i dispositivi in maniera uniforme
-                                in modo da utilizzarli senza conoscerne il funzionamento interno
-
-                                Allo stesso modo l'uscita permette, tramite i dispositivi di uscita, di convertire i bit di uscita in informazioni comprensibili
-                                (immagini, suoni ecc..)
-
-                                blocco centrale
-                                La memoria principale del compilatore contiene dati e programmi (una parte di dati è contenuta anche nelle interfacce dei dispositivi I/O)
-
-                                Blocco dx;
-                                Il processore contiene due parti
-                                ALU - Aritmetic and Logic Unit
-                                FPU - Floating Point Unit
-
-                                ALU e FPU compongono il processore
-
-                                l'ALU permette di eseguire operazioni logiche e aritmetiche, mentre la FPU permette di fare operazioni in virgola mobile
-                                Quando vengono registrate istruzioni queste vengono tradotte in una delle due tipologie di istruzioni, ALU o FPU, e vengono reindirizzate al
-                                relativo blocco.
-
-                                Corso -> Processore alias per ALU
-
-                                ALU --------------------------
-                                Esegue operazioni logiche su stringhe di bit (and, not, or)
-                                Esegue operazioni aritmetiche su stringhe di bit (naturali in base 2 e interi in complemento a 2)
-
-                                RECAP RAPPRESENTAZIONE ------------------------------------------
-                                Su n bit rappresento 2^n numeri naturali [0; 2^N -1]
-                                la legge della notazione tradizionale (base due) è:
-                                x = sommatoria da i = 0 a N-1 di bi * 2^i
-                                bit più sx è il Most Significant Bit MSB e il più dx è il Least Significan Bit LSB
-
-                                Numeri interi sono rappresentanti in complemento a 2
-                                Su N bit si rappresentano 2^N numeri interi [-2^(n-1); 2^(N-1)-1] 
-                                Su 8 e 16 biy l'intervallo è [-128, 127] e [-32768, 32767]
-                                Il numero intero X viene rappresentato con la stiringa di bit X che corrisponde al naturale
-
-                                X = {x se x>= 0
-                                    {2^N + x se x < 0
-
-                                Purchè sia rappresentabile nell'intervallo di RAPPRESENTAZIONE
-                                versione equivalente
-                                X = |X|(ped)2 N
-
-                                Legge inversa
-
-                                x = {X se Xn-1 (MSB) = 0
-                                    {-(X(comp) + 1) se Xn-1(MSB) = 1
-
-                                    X(comp) cambia gli 0 in 1
-
-                                NOTAZIONE ESADECIMALE -----------------------------------------------------------------
-                                4 bit sono un numero tra 0 e 15 al quale posso assocciare un simbolo esadecimale
-                                0 1 2 3 4 5 6 7 8 9 A B C D E F
-                                0000 ->                     ->1111
-                                posso scrivere 0xC1 per indicare 1100 | 0001 (C e 1)
-                                il prefisso 0x indica l'uso di codifica esadecimale
-
-                                Esercizi x casa -> slide 14
-
-                                STRUTTURA DEL CALCOLATORE -------------------------------------------------------------
-                                Visto da un porgrammatore Assembler:
-
-                                Spazio di memoria
-                                Si accede tramite MOV
-                                Spazio lineare di 2^32 locazioni (celle) contingue, un vettore di 2^32 byte
-                                Ogni cella viene chiamata INDIRIZZO e viene identificata da un numero a 32 bit da 0x0000000 a 0xFFFFFFFFF
-                                Il processore può accedere (I/O) alla memoria come:
-                                - Singola locazione (byte) 8 Bit
-                                - Doppia locazione (word) 16 bit
-                                - Quadrupla locazione (double word) 32 bit
-
-
-                                Si usa l'indirizzo più piccolo delle 2/4 locazioni per gestire l'accesso a 16/32 bit
-                                la parte piccoli significativa sta nella parte "alta" della cella, e l'accesso ad un indirizzo più basso consente di aumentare 
-                                la dimensione della lettua/scrittura
-
-                                Lo spazio in memoria è implementato in tecnologia RAM(volatile) tranne una piccola parte che deve essere ROM (permanente) |
-                                ROM necessaria per le informazioni (istruzioni) di avvio
-
-                                Se nel sistema ci sono meno di 4GB(2^32) | KB 2^10 MB 2^20 GB 2^30
-                                Come faccio a sapere se posso accedere ad un indirizzo o se sono contenuti dati relativi al Osservazione
-
-                                ->In assembler ci sono accessi SIMBOLICI (indirizzi SIMBOLICI non NUMERICI) gestiti nell'assemblaggio dall'assemblatore, in parte in runtime
-                                ->Non serve che lo risolva il programmatore
-
-                                Spazio di I/O
-                                dimensioni 2^16 ovvero 64K locazioni o porte
-                                Ogni porta ha una capscità di un byte ed è indirizzabile con indirizzo a 16 bit (vettore di 2^16 byte)
-
-                                il Processore accede in lettura o scrittura tramite due istruzioni IN e OUT e spesso una porta supporta soltanto
-                                operazioni di lettura O operazioni di scrittura
-                                Le locazioni di memoria sono identiche, le porte I/O no, ai rispettivi indirizzi sono presenti le interfacce per i dispositivi associati.
-                                Es. indirizzo interfaccia tastiera -> interfaccia tastiera != interfaccia mouse
-                                E' necessario CONOSCERE gli indirizzi relativi
-
-                                PROCESSORE
-                                E' suddiviso in registri, ovvero locazioni di memoria interne di 32 bit, divisi in:
-                                GENERALI per le elaborazioni
-                                DI STATO: riservati per compiti speciali
-
-                                Ogni registro ha un nome che VA conosciuto e si riferisce alla sua funzione
-                                per retrocompatibilità i 16 bit più bassi del registro POSSONO essere riferibili autonomamente
-                                es EAX -> Extended AX | AX -> solo i 16 bit più bassi di EAX
-
-                                Per le medesime ragioni è possibile in alcuni registri riferirsi ai soli 8 bit più bassi
-                                es. EAX -> E - AX -> AL e AH (Low & High)
-
-
-                                Assembly NON ortogonale, alcuni registri sono riservati a specifiche operazioni (ragioni HARDWARE)
-
-                                REGISTRI GENERALI --------------------
-                                Per motivi Hardware, storici e costruttivi alcuni registri sono legati a specifiche funzioni
-                                es. 
-                                EAX (intero o parte) per operazioni aritmetiche e risultati di tali operazioni (accumulatore)
-                                ESI, EDI, EBX, EBP sono a volte utilizzati come registri puntatore, base B e inidice I | S source e D Destination
-                                ESP è utilizzato per indirizzare la pila o stack
-                                - parte di memoria con disciplina LIFO
-                                - serve per gestire sottoprogrammi
-
-
-
-                                NOMI DEI REGISTRI
-                                AX - Accumulator
-                                BX - Base
-                                CX - Counter
-                                DX - Data
-
-                                SI - Source Index
-                                DI - Destination Index
-                                BP - Base Pointer 
-                                SP - Stack Pointer
-
-                                E - Extended (da 16 a 32 bit)
-
-
-                                REGISTRI DI STATO --------------------------
-                                EIP Instruction Pointer (chiamato anche Program Counter)
-                                - Contiene l'indirizzo della locazione dalla quale sarà prelevata la PROSSIMA istruzione da eseguire
-                                - E' fissato al reset iniziale (punta alle istruzioni in ROM)
-
-                                Il Processore quindi:
-                                - Preleva dalla memoria, dall'inidirizzo EIP, una nuova istruzione
-                                - incrementa EIP del numero di byte dell'istruzione che ha prelevato
-                                - esegue l'istruzione e torna al prelievo della prossima istruzione
-
-                                Le istruzioni vengono eseguite una dopo l'altra nell'ordine in cui sono scritte in memoria, eccetto in casi di SALTI (GOTO) che modificano l'EIP
-
-
-                                EF Extended Flag Register ha 32 elementi detto Flag
-                                Alcuni dei piccola interessanti:
-                                OF - Overflow Flag | Viene messo a 1 se l'ultima istruzione c'è un overflow e l'operazione era su numeri interi il numero risultante NON E' rappresentabile (caso di OVERFLOW o TRABOCCAMENTO)
-                                SF - Sign Flag | Viene messo a 1 se l'ultima istruzione ha generato MSB a 1 (numero negativo)
-                                ZF - Zero Flag | Viene messo a 1 se l'ultima istruzione ha generato risultato con tutti i bit a 0 
-                                CF - Carry Flag | Viene messo a 1 se l'ultima istruzione ha generato un riporto o un prestito, se l'istruzione operava sui NATURALI il risultato
-                                dell'operazione NON E' rappresentabile
-
-
-                                Operazione su numeri interi ci interessano OF, SF, ZF
-                                Operazione su numeri naturali ci interessano CF, ZF
-
-                                Condizioni al reset:
-                                EIP vale 0xFFFF0000
-                                la prima istruzione è La e un po di celle da 0xFFFF0000 in poi devono essere implementate in ROM
-
-                                in EFI i flag che ci interessano al reset valgono 0    
+                            <div class="collapse" id="lezione1">               
+                                <div id="carouselExampleControls" class="carousel slide" data-bs-ride="carousel">
+                                    <div class="carousel-inner">
+                                      <div class="carousel-item active">
+                                        <img src="img/retilogiche/1.jpg" style="transform: rotate(270deg);" class="d-block w-100" alt="first">
+                                      </div>
+                                      <div class="carousel-item">
+                                        <img src="img/retilogiche/2.jpg" style="transform: rotate(270deg);" class="d-block w-100" alt="second">
+                                      </div>
+                                      <div class="carousel-item">
+                                        <img src="img/retilogiche/3.jpg" style="transform: rotate(270deg);" class="d-block w-100" alt="third">
+                                      </div>
+                                    </div>
+                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="prev">
+                                      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Previous</span>
+                                    </button>
+                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleControls" data-bs-slide="next">
+                                      <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                      <span class="visually-hidden">Next</span>
+                                    </button>
+                                  </div>
                             </div>
                         </div>
                         <div class="row w-100 mt-1">
@@ -324,7 +71,7 @@
 
     <script type="text/Javascript">
         function openPage(num){
-            $('#lezione'+num).collapse('toggle')
+            $('#lezione'+num).toggleClass('show')
         }
     </script>
 </html>
