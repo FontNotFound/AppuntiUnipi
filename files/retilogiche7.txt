@@ -1,0 +1,144 @@
+Lezione VII
+
+ISTRUZIONI CHE MANIPOLANO LE STRINGHE
+
+In Assembler non esistono tipi nè strutture dati
+    Esistono solo byte, word e long
+
+L'assembler supporta il concetto di vettore
+    dichiarare vettori di variabili di una certa dimensioni
+    l'indirizzamento con displacement + registri base/indice che coincidono con il concetto di accesso vettoriale
+
+Nei processori intel da un certo livello sono state introdotte istruzioni dette "istruzioni stringa"
+
+ISTRUZIONI STRINGA ------
+la stringa è un VETTORE <-X-> nessuna correlazione con "char"
+Servono a copiare interi buffer di memoria senza passare dal processore
+Usano i registri %ESI, %EDI come puntatori (S: source, D: destination)
+
+ES: Copia di un vettore (slide 169)
+
+vett_sorg:  .FILL 1000,4
+vett_dest:  .FILL 1000,4
+
+        [...]
+        MOV $1000, %ECX
+        LEA vett_sorg, %ESI
+        LEA vett_dest, %EDI
+ciclo:  MOV (%ESI), %EAX        | (CLD)  
+        MOV $EAX, (%EDI)        | REP MOVSL
+        ADD $4, %ESI            |
+        ADD $4, %EDI            |
+        LOOP ciclo              |        
+
+MOVS:
+    Copia l'indirizzo puntato da ESI in EDI e aggiorna il puntatore alla posizione corretta (incrementa)
+    L'estensione B, W, L permette di specificare la dimensione
+
+REP
+    Ripete l'istruzione che segue per il numero di volte N salvato nel registro %ECX (come un mini-loop)
+
+MOVE DATA FROM STRING TO STRING (with REPEAT)
+    MOVsuffix
+    REP MOVsuffix
+
+    Copia il numero di byte specificato dal suffisso suffix dall'infirizzo di memoria puntato da ESI all'indirizzo di memoria puntato da EDI. Se DF=0, somma ad ESI e ad EDI il numero di byte specificato dal suffisso. Se DF=1 sottrae da ESI e da EDI il numero di byte specificato dal suffisso.
+
+    DF specifica la DIREZIONE di copia (avanti = 0; indietro = 1)
+
+    Se viene prefisso a REP, allora le azioni di copia vengono ripetute per il numero di volte specificato in ECX, che viene decremntato fino a 0
+
+
+ISTRUZIONI PER IMPOSTARE IL DF
+STD (Set Direction Flag) imposta il DF a 1
+CLD (Clear Direction Flag) imposta il DF a 0
+
+ALTRE ISTRUZIONI DI STRINGA
+LODSsuffix
+    Copia in AL, AX, oppure EAX (a seconda del sufffisso) il contenuto della memoria all'indirizzo puntato da ESI
+    A seconda del valore del DF, incrementa o decrementa di 1,2 o 4 ESI
+
+STOSsuffic
+    Copia il restro AL, AX, oppure EAX (a seconda del suffisso) in memoria all'indirizzo puntato da EDI
+    A seconda del valore del flag DF, incrementa o decrementa di 1,2 o 4 EDI
+
+
+ISTRUZIONI STRINGA PER l'I/O
+INSsuffix
+    (INSTRING) Fa ingresso di uno, due o quattro byte dalla porta di I/O il cui offse è contenuto in DX.
+    L'operando viene inserito in memoria a partire dall'indirizzo di memoria contenuto in EDI. A seconda del valore del flag DF, incrementa o decrementa di 1, 2 o 4 il contenuto di EDI.
+
+OUTsuffix
+    (OUTSTRING) copia di uno, due o quattro byte, contenuti in memoria a partiredall'indirizzo in memoria contenuto in ESI, alla porta di  I/O il contenuto... (sòode 176)
+
+COMPARE STRINGS
+    CMPSsuffix
+
+    Confronta il contenuto delle locazioni(doppie locazioni, quadruple locazioni) indirizzate da ESI(sorgente) e EDI(destinatario) e li CONFRONTANO.
+    A seconda del valore di DF incrementato o decrementano.
+
+SCAN STRING
+    SCASsuffix
+    
+    Confronta il contenuto di AL, AX o EAX ocn la locazione di memoria indirizzata da EDI. L'algoritmo usato nel confronto è identico a quello della CMP.
+
+    Serve a trovare un elemento di valore noto dentro un vettore
+
+    DF = 0 Cerca la prima occorrenza
+    DF = 1 Cerca l'ultima occorrenza
+
+PREFISSI DI RIPETIZIONE
+REP-------
+    Può essere usato con MOVS, (LODS), STOS, INS, OUTS.
+    Utilizzo con LODS è privo di senso, in quanto finisce a sovrascrivere N volte lo stesso registro.
+    Si applica ad UN istruzione.
+
+REPE/REPNE
+    Può essere usato con CMPS, SCAS
+    Si applica ad UN istruzione
+    Si fanno al maccimo ECX ripetizioni, finchè la condizione specificata è VERA
+
+
+ATTENZIONE:
+    REPE CMPSSuffix -> Termina se due elementi sono diversi
+                       Ma il controllo e' SUCCESSIVO alla compare (e quindi all'incremento/decremento di ESI/EDI)
+                       Quindi puntano sempre all'elemento SUCCESSIVO all'ultimo/all'occorrenza diversa
+
+Il motivo dell'esistenza di due direzioni è sia per garantire controlli di prima ed ultima occorrenza sia per la copia di BUFFER SOVRAPPOSTI PARZIALMENTE (slide 180)
+
+
+NOTE SULLA PROGRAMMAZIONE ASSEMBLER
+Un compilatore C++ ottimizza il codice per il sistema su cui gira
+Un assemblatore TRADUCE le istruzioni una per una
+    L'efficienza del programma dipende direttamente da quello che è scritto sul pogramma
+
+TEMPO DI ESECUZIONE DI UN PROGRAMMA
+E' impossibile inferire dalla lista delle istruzioni
+    SI misura un processo, non un programma
+    Così come si assaggia una torta, non una ricetta
+
+Dipende:
+    Dai dati
+    Dallo stato del sistema
+    Da altri usi concorrenziali del processore
+
+La ripetizione N volte dell'esecuzione dello stesso programma, con gli stessi dati in input, è probabile che la misua temporale sia motlo diverso.
+    Un calcolatore non è una macchina create per esguire in tempo PREVEDIBILE
+    La velocità di esecuzione a scapito della prevedibilità della medesima
+
+Il clock del processore non va a velocità costante
+Il processo non necessariamente gira su un singolo core
+Ci sono diversi meccanismi che introducono ordini di grandezza di variabilità a parità di altri fattori:
+    Memoria cache
+    Code di prefetch
+    Esecuzione in pipeline
+    Esecuzione non sequenziale
+    Branch prediction....
+
+La velocità (media) delle istruzioni è misurata in ordine di Cicli di Clock.
+Le istruzioni più veloci hanno durata nell'ordine di un giro di Clock O(1)
+Istruzioni operative della ALU (Escluse MUL, DIV) costano "poco" O(1) clock
+Istruzioni ALU di mul/div costano"molto" : O(10) clock
+Istruzioni trascendenti FPU (sin, cos) costano tanto tant: O(100) clock
+Istruzioni di controllo-> costo alto ma per altri motivi
+

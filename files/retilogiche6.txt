@@ -1,0 +1,91 @@
+Lezione VI
+
+Ingresso / Uscita e sottoprogrammi di utilità
+
+In Assembler non esistono istruzioni di I/O
+    SOLO IN e OUT su interfacce
+    Non tutte possono essere usate (istruzioni protette non utilizzabili in modalità utente)
+
+I/O tastiera/video: si usando i Servizi del Sistema (DOS)
+    Sottoprogrammi scritti da altri che girano in modalità sistema, e possono usare IN/OUT
+
+CODIFICA ASCII (7 bit, 0 - 127)
+cifre       '0' - '9'   |   0x30 - 0x39
+Maiuscole   'A' - 'Z'   |   0x41 - 0x5A
+Minuscole   'a - 'z'    !   0x61 - 0x7A
+
+La differenza tra una lettera minuscola e la sua maiuscola è il 5 bit
+
+1001101 M <-> 1101101 m
+
+caratteri speciali:
+Ritorno Carrello (Carriage Return)  0x0D
+Avanzamento Linea                   0x0A
+backspace                           0x08
+
+I/O Tastiera e video
+non esiste l'I/O di variabili tipate
+"stampa il numero 32" -> stampa ASCII 0x33 e 0x32
+
+per gestire l'I/O di numeri con più cifre a base 10 devo gestire l'input delle singole cifre e poi valorizzarli tramite moltiplicazioni per la base (10) elevata alla posizione (cofica posizionale)
+->Unità
+->Decina * 10
+->Centinaia * 100
+
+FILE UTILITY I/O
+.INCLUDE "./files/utility.s" <-- File di utility per I/O
+
+Alcuni sottoprogrammi di utiliity:
+    inchar  | mette in AL la codifica ASCII del tasto premuto
+    outchar | mette sul video la codifica ASCII contenuta in AL
+    newline ! serve per andare a capo (0x0D e 0x0A - Carriage Return e Line Feed)
+    pauseN  ! mette in pausa il programma e stampa sul video:
+        Checkpoint number N. press any key to continue
+        N deve essere una cifra decimale
+
+INGRESSO/USCITA DI CARATTERI E STRINGHE
+Inline ---------------------
+    Consente di portare una stringa di max 80 caratteri in un buffer di memoria, digitando da tastiera con ECO da video
+
+Parametri in ingresso:
+    EBX: indirizzo di memoria del buffer
+    CX: numero di caratteri da leggere (MAX 80)
+
+La lettura da tastiera termina dopo 78 caratteri o dopo la pressione di invio.
+    Vengono aggiunti in cosa LF Line Feed e CR Carriage Return
+
+Il sottoprogramma interpreta un carattere di backspace (ASCII 8 | 0x08) come l'ordine di cancellare dal buffer e dal video l'ultimo carattere registrato
+
+outline---------------------
+    Consente di stampare a video max 80 caratteri. Se ferma prima se trova un carattere di CR stampando anche i caratteri necessari ad andare a capo LF, CR
+
+Parametri in ingresso:
+    EBX: indirizzo di memoria del buffer
+
+outmess ---------------------
+Parametri in ingresso:
+    EBX: indirizzo di memoria del budder
+    CX: numero di caratteri da stampare a video
+
+
+INGRESSO USCITA DI NUMERI ESADECIMALI
+inbyte, inword, inlong --------------
+    Prelevano da tastiera (con eco a video) 2, 4 o 8 caratteri da tastiera
+    Interpretano la sequenza di caratteri come un numero esadecimale da 2, 4 o 8 cifre
+    mettono la sequenza tradotta in binario in AL, AX o EAX
+    Ignorano qualunque altro carattere premuto
+
+outbyte, outword, outlong ----------
+    Stampano su video rispettivamente 2,4 o 8 caratteri, corrispondenti a cifre esadecimali ottenuti intepretando il contenuto binario di AL, AX o EAX come un numero naturale.
+
+INGRESSO USCITA DI NUMERI DECIMALI
+indecimal_byte, indecimal_word, indecimal_long--------------
+    Prelevano da tastiera (con eco a video) *fino* a 3, 5 o 10 cifre decimali
+    interpretano la sequenza di caratteri come un numero decimale
+    lo traducono in binario e lo inseriscono in AL, AX o EAX.
+    Ignorano qualunque altro carattere premuto
+    Se il numero digitato è troppo grande viene TRONCATO
+    Si pul premere invio per dare in ingresso meno di 3, 5 o 10 cifre
+
+outdecimal_byte, outdecimal_word, outdecimal_long ----------
+    Stampano su video il contenuto di AL, AX o EAX interpretanto come un numero naturale, sul numero di cifre strettamente necessari.

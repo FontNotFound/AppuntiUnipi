@@ -1,0 +1,300 @@
+Lezione V
+
+Differenza tra porgramma Assembler e Programma in linguaggio macchina (slide 128)
+
+Assemblato:             Assembler:
+bye bye byte            OPCODEsuccifx source, dest
+
+
+Assemblatore:
+GAS (GnuAssembler)
+scaricabile da Ambiente (teams)
+
+
+Descrizione di un programma Assembler:
+
+Sezione dati
+    Dichiarazione di variabili |<-- Allocazione della memoria
+    Le variabili sono nomi simbolici per indirizzi di memoria che contengono i dati del programma
+
+Sezione codice
+    Direttive (per l'assemblaggio e le dichiarazione di variabili)
+    Istruzioni
+
+Ogni direttiva/iscruzione occupa una riga, il separatore è il Carriage Return (CR)
+Anghe l'ultima riga deve essere terminata da CR
+
+STRUTTURA GENERALE:
+
+.GLOBAL _main <--'.' indica una direttiva
+                     Questa direttiva impone '_main' come nome globale.
+
+.DATA
+//Sezione dati
+
+.TEXT
+//Sezione codice
+_main:  NOP (Conviene che il codice inizi con un NOP)
+
+        ....
+
+        RET | Il (sotto)programma finisce con RET
+
+Assembler è QUASI case insensitive, tutte le parole chiave possono essere scritti in maiuscolo o in minuscolo.
+l'indentazione non è obbligatoria, ma è buon uso.
+Le etichette invece sono Case Sensitive
+
+programma esempio (slide 132)
+
+Spiegazione programma (slide 134)
+
+Sposto costante 0 in CL
+Sposto il dato a 32 bit in EAX
+Confronto 0 con il contenuto di EAX, se sono uguali il programma va a "fine"
+altrimenti:
+eseguo lo shift a sinistra di EAX
+Sommo (con carry bit) la costante 0 + carry a CL (se il carry, ovvero il bit "espulso" è 1 diventa 1)
+TOrno alla comparazione
+fine:
+sposto il conteggio in CL e ritorno.
+
+
+Una riga di CODICE ASSEMBLER è fatta:
+nome:   KEYWORD operandi    #complemento [\CR]
+
+
+Può mancare TUTTO tranne il CR
+
+Dichiarazione di variabili: - direttive o pseudo-istruzioni -
+.BYTE   |8 bit
+.WORD   |16 bit
+.LONG   |32 bit
+
+
+es.
+var0:   .WORD   0 # 0x0000
+var1:   .BYTE   0x30
+var2:   .BYTE   0x30, 0x31      # Vettore a due componenti da 1 byte
+var3:   .WORD   0x1020, 0x32AB  # Vettore a due componenti da 2 byte
+var4:   .LONG var3+2            # 4 byte, scrive l'indirizzo del primo byte del secondo componente di var3 (var3 = 1^ byte, var3+2 = 3^ byte)
+
+Metodi migliori:
+.FILL numero, dim [espressione]
+    Riserva in memoria NUMERO variabili a lunghezza DIM e le inizializza ad [espressione] (defualt 0)
+    dim può essere 1(byte), 2(word) o 4 (long)
+
+.Codifiche ASCII
+    Sono accetate come costanti:
+    var5: .BYTE 'C','i','a','o' #Vettore a 4 componenti da 1 byte
+    ##Eqivale a ##
+    var5: .BYTE 0x43, 0x69, 0x61, 0x6F
+
+
+Posso dichiarare anche VETTORI di byte con codifiche ASCII e con la direttiva ASCII
+var6:   .ASCII  "messaggio"  #Vettore di 9 componenti da 1 byte
+var7:   .ASCIZ  "messaggio"  #Vettore di 10 componenti (p+1) da 1 byte che termina con \0 (NUL)
+
+è possibile codificare anche i caratteri speciali con le stesse escape sequenze di C++ \t, \d....
+le allocazioni delle variabili avvengono su celle CONSECUTIVE (ma non ci fare affidamento)
+
+ALTRE DIRETTIVE:
+
+INCLUDE "path"
+    include il sorgente specificato la PATH nel presente facile
+    L'assemblatore assembla un file unico contenente il codice di entrambi, in genere si mette in cima o fondo
+
+.SET nome, espressione
+    Crea costanti simboliche. hanno il nome NOME ed il valore espressione
+
+    .SET dimensione, 4
+    .SET n_iter, (100*dimensione)
+
+    MOV $n_iter, %CX #Si usa il $ per distinguere l'operazione IMMEDIATA
+
+Dev'essere calcolabile al tempo di assemblaggio
+
+
+COSTANTI NUMERICHE:
+Naturali non hanno segno
+Intere hanno un segno davanti + o -
+
+Ne determina l'eventuale conversione in C2
+
+Possono essere scritti:
+    in base 2 preceduti da 0b
+    in base 8 ma cominciano con 0
+    in base 10 NON devono cominciare con 0
+    in base 16 preveduti da 0x
+
+Se non sono della dimenzione giusta vengono:
+    Troncate se troppo lunghe, e in genere l'assemblatore avverte
+    Estese se troppo corte, e normalmente l'assemblatore NON avverte
+
+
+Controllo di flusso.
+I costrutti di controllo di flusso tipici dei linguaggi di alto livello devono essere implementati tramite istruzioni di salto.
+
+if..then..else
+for
+while
+do...while
+
+Conviene continuare a RAGIONARE in termini di costrutti di alto livello e TRADURREin Assembler
+
+if (\%AX < variabile)   //naturali
+    (ist1;...;istN)
+else\
+    (istN+1;...;istN+M)
+ist_nuova;
+
+TRADUZIONE:
+
+
+1. inverto ramo then e ramo else
+            CMP variabile,%AX
+            JB ramothen
+ramoelese:  istN+1          #etichetta non necessaria
+            ...
+            istN+M
+            JMP segue
+ramothen:   ist1
+            ...
+            istN
+segue:      ist_nuova
+
+2. inverto la condizione
+            CMP variabile,%AX
+            JAE ramoelse
+ramothen:   ist1
+            ...
+            istN
+            JMP segue
+ramoelse:   istN+1
+            ....
+            istN+M
+segue:      ist_nuova
+
+
+
+
+
+CICLO FOR
+fot(int i =0; i < var; i++)     //"var" variabile o costante
+    (ist1; ...; istN)
+
+TRADUZIONE
+
+        MOV $0, %CX //Inizializzazione FUORI dal ciclo
+ciclo:  CMP var, %CX
+        JE fuori
+        ist1
+        ...
+        istN
+        INC %CX //Incremento del for , NON ADD $1, $CX (sta su 3 byte)
+        JMP ciclo
+fuori:  ....
+
+Attenione a NON modificare il valore del registro CX (nè CL, CH) durante il ciclo
+
+
+CICLO WHILE -> in sostanza identico, Jump sulla condizione senza incrementi ma boh dai è uguale alla fine
+
+CICLO DO WHILe
+do
+    (ist1; ...; istN)
+WHILE (AX < var);
+
+
+ciclo:  ist1
+        ...
+        istN
+        CMP var, AX     #Controllo alla fine
+        JB ciclo
+
+In Assembler è possibile SALTARE ALL'INTERNO DEI CICLI
+in C++ NO
+    per ottimi motivi
+    se il controllo di flusso sembra un piatto di spaghetti (spaghetti code) il programma è inverificabile
+
+Linguaggi strutturati come C e Pascal sono pensati apposta per evitare questo stile di programmazione
+    Unico punto di ingresso, Unico punto di uscita
+
+In Assembler è il programmatore che ci deve pensare (e lo DEVE fare)
+
+
+ISTRUZIONE LOOP
+
+Decrementa ECX e salta SE ECX != 0
+
+        MOV $5, %ECX
+ciclo:  ist1
+        ....
+        istN
+        LOOP ciclo (fa praticamente un for LOL)
+
+ECX va inizializzato al numero di iterazioni desiderate.
+    NON VA TOCCATO DURANTE IL CICLO
+    Utile per tradurre cicli for con numero di interazioni noto
+
+
+LOOP CONDIZIONALE
+LOOPE, LOOPNE (LOOPZ, LOOPNZ)
+Sensata solo DOPO una CMP
+Il salto avviene se:
+    1. La condizione è VERA
+    2. Dopo il decremento, ECX != 0
+
+Si scrive in ECX il numero di MASSIME iterazioni
+
+
+Sottoprogrammi e passaggio di parametri
+CALL
+    Non prevede passaggio di parametri al sottoprogramma chiamato
+RET
+    Non prevede un valore di ritorno per il chiamante
+
+E' necessario stabilire delle CONVENZIONI e rispettarle
+    1. Usare locazioni di memoria condivise
+    2. Usare registri
+
+In Assembler NON ESISTE il concetto di VARIABILE LOCALE ad un sottoprogramma
+    La memoria principale è indirizzabile da qualunque sottoprogramma
+
+Chi scrive un programma DEVE provvedere a commentare adeguatamente il codice per specificare le operazioni, che siano
+preliminari, di passaggio, operazioni aritmetiche ecc...
+
+i registri NON usati per i valori di ritorno NON devono essere SPORCATI dal sottoprogramma.
+    E' buona prassi andare a salvare in pila i registri NON utilizzati per il ritorno del sottoprogramma ma sporcati per le operazioni interne
+    e poi ripristinarli PRIMA dell'istruzione di ritorno
+
+Attenzione particolari alle istruzioni con registri impliciti (es. Mul e Div con (E)DX
+La pila va lasciata in ordine a fine sottoprogramma
+
+il _main è il SOTTOPROGRAMMA PRINCIPALE (infatti finisce con la RET)
+    Per il main non serve andare a pulire i registri
+    Chi lo chiama si aspetta un valore di ritorno in %EAX con:
+    - 0 | tutto ok
+    - ^0| codice di errore
+
+solitamente quindi si inserisce un ulteriore istruzione di fine:
+XOR %EAX, %EAX
+RET
+
+DICHIARAZIONE DELLO STACK
+"dichiarare" lo stack -> riserva abbastanza memoria
+"inizializzare" lo stack -> inserire denreo ESP la cella SUCCESSIVA al fondo dello stack
+
+.DATA
+    mystack:    .FILL 1024,4                        #dichiarazione stack
+    .SET        iniztial_esp, (mystack + 1024*4)    
+
+.TEXT
+_main:  NOP
+        MOV $initial_esp, %ESP  #Inizializzazione stack
+
+tutto questo NEL NOSTRO AMBIENTE viene fatto dall'IDE stesso, ma in generale in Assembler NON E' SEMPRE COSì
+
+Terzo modo di passaggio di parametri: la PILA
+    Lo fanno i compilatori
+    Lo vedremo a Calcolatori Elettronici
+    Difficile da fare a mano, pertanto sconsigliato
